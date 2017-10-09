@@ -20,8 +20,6 @@ public class Main {
     State finalState = null;
 
 
-
-
   }
 
   private List<State> getPossibleStates(List<State> currentLevelStates){
