@@ -25,9 +25,9 @@ public class Predicate {
   // Type of predicate
   private final TYPE type;
   // Parameters
-  private final List<String> params;
+  private final List<Structure> params;
 
-  public Predicate(TYPE type, List<String> params) {
+  public Predicate(TYPE type, List<Structure> params) {
     this.type = type;
     this.params = params;
   }
@@ -36,7 +36,7 @@ public class Predicate {
     return type;
   }
 
-  public List<String> getParams() {
+  public List<Structure> getParams() {
     return params;
   }
 }

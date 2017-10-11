@@ -7,9 +7,10 @@
 
 package structures;
 
-public class Block {
+public class Block extends Structure {
 
   public Block(String name, int weight) {
+    super(STRUCTURE_TYPE.BLOCK);
     this.name = name;
     this.weight = weight;
   }
