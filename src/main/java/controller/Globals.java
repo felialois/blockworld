@@ -7,21 +7,20 @@
 
 package controller;
 
-import com.google.common.collect.Lists;
-import java.util.List;
 import structures.Arm;
 import structures.Arm.ARM_DIRECTION;
-import structures.Operation;
-import structures.Predicate;
-import structures.Structure;
+import structures.Block;
+import structures.Column;
 
 public class Globals {
 
   public static Arm left = new Arm(ARM_DIRECTION.LEFT);
   public static Arm right = new Arm(ARM_DIRECTION.RIGHT);
-  public static Arm anyArm = new Arm(ARM_DIRECTION.ANY);
+  private static final Arm anyArm = new Arm(ARM_DIRECTION.ANY);
+  private static final Column anyColumns = new Column(3);
 
-
+  private static final Block blockX = new Block("x", 1);
+  private static final Block blockY = new Block("y", 1);
 
 
 }

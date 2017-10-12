@@ -20,7 +20,7 @@ public class Structure {
   }
 
   public enum STRUCTURE_TYPE{
-    ARM, BLOCK
+    ARM, BLOCK, COLUMN
   }
 
 }

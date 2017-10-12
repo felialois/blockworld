@@ -39,4 +39,22 @@ public class Predicate {
   public List<Structure> getParams() {
     return params;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) { return true; }
+    if (o == null || getClass() != o.getClass()) { return false; }
+
+    Predicate predicate = (Predicate) o;
+
+    if (type != predicate.type) { return false; }
+    return params != null ? params.equals(predicate.params) : predicate.params == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = type != null ? type.hashCode() : 0;
+    result = 31 * result + (params != null ? params.hashCode() : 0);
+    return result;
+  }
 }

@@ -29,4 +29,22 @@ public class Block extends Structure {
     return weight;
   }
 
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) { return true; }
+    if ((o == null) || (getClass() != o.getClass())) { return false; }
+
+    Block block = (Block) o;
+
+    if (weight != block.weight) { return false; }
+    return (name != null) ? name.equals(block.name) : (block.name == null);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = (name != null) ? name.hashCode() : 0;
+    result = (31 * result) + weight;
+    return result;
+  }
 }
