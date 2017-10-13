@@ -9,6 +9,8 @@ import com.google.common.collect.Lists;
 import controller.Globals;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import junit.framework.TestCase;
 import structures.Block;
 import structures.Column;
@@ -81,7 +83,6 @@ public class MainTest extends TestCase {
         ));
 
     State testState = new State(statePreds);
-
   }
 
 

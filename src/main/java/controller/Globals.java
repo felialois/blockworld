@@ -16,7 +16,6 @@ public class Globals {
 
   public static Arm left = new Arm(ARM_DIRECTION.LEFT);
   public static Arm right = new Arm(ARM_DIRECTION.RIGHT);
-  private static final Arm anyArm = new Arm(ARM_DIRECTION.ANY);
   private static final Column anyColumns = new Column(3);
 
   private static final Block blockX = new Block("x", 1);

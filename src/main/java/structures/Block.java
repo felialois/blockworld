@@ -29,6 +29,10 @@ public class Block extends Structure {
     return weight;
   }
 
+  public boolean lightBlock(){
+    return weight<=1;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -46,5 +50,10 @@ public class Block extends Structure {
     int result = (name != null) ? name.hashCode() : 0;
     result = (31 * result) + weight;
     return result;
+  }
+
+  @Override
+  public String toString(){
+    return "Block "+name;
   }
 }

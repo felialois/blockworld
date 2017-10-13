@@ -21,7 +21,7 @@ public class Arm extends Structure{
   }
 
   public enum ARM_DIRECTION {
-    LEFT, RIGHT, ANY
+    LEFT, RIGHT
   }
 
 

@@ -10,6 +10,7 @@ package structures;
 import controller.Globals;
 import java.util.ArrayList;
 import java.util.List;
+import structures.Predicate.TYPE;
 
 public class State {
 
@@ -18,6 +19,8 @@ public class State {
 
   //Predicates from the state higher up, that need to be checked with the current state
   private final List<Predicate> regressionPredicates;
+
+  private List<Block> clearBlocks;
 
   //State of all the checked predicates.
 
@@ -47,8 +50,52 @@ public class State {
   }
 
   //TODO IMPLEMENT
-  public int getColumnsLeft() {
+  public int getUsedColumns() {
     return 3;
+  }
+
+  /**
+   * Checks if a block is clear in the current state
+   *
+   * @param block block to be checked
+   *
+   * @return if the block is clear
+   */
+  public boolean isBlockClear(Block block) {
+    return clearBlocks.contains(block);
+  }
+
+  /**
+   * Checks if a block is on the table
+   *
+   * @param block block to be checked
+   *
+   * @return if the block is on the table
+   */
+  public boolean isBlockOnTable(Block block) {
+    for (Predicate predicate : regressionPredicates) {
+      if ((predicate.getType() == TYPE.ON_TABLE)
+          && predicate.getParams().get(0).equals(block)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public List<Block> getClearBlocks(){
+    return clearBlocks;
+  }
+
+  /**
+   * Get all the clear blocks in a state
+   */
+  public void listClearBlocks(){
+    clearBlocks = new ArrayList<>();
+    for (Predicate predicate : regressionPredicates) {
+      if (predicate.getType() == TYPE.CLEAR){
+        clearBlocks.add((Block) predicate.getParams().get(0));
+      }
+    }
   }
 
   /**
@@ -86,32 +133,61 @@ public class State {
    */
   public List<Operation> getOperations(Predicate pred, State state) {
     List<Operation> result = new ArrayList<>();
+    Block blockY;
+    Block blockX;
+    Arm arm;
+
     switch (pred.getType()) {
       case ON_TABLE:
         // Take the block for the leave operation
         Block blockToLeave = (Block) pred.getParams().get(0);
         // If the block is light enough for the left arm then add the left arm operation
-        if (blockToLeave.getWeight() <= 1) {
+        if (blockToLeave.lightBlock()) {
           result.add(
-              Operation.makeLeave(blockToLeave, Globals.left, state.getColumnsLeft()));
+              Operation.makeLeave(blockToLeave, Globals.left, state.getUsedColumns()));
         }
         // Add the right arm operation
         result.add(
-            Operation.makeLeave(blockToLeave, Globals.right, state.getColumnsLeft()));
+            Operation.makeLeave(blockToLeave, Globals.right, state.getUsedColumns()));
         break;
       case ON:
+        // ON (X, Y)
+        blockX = (Block) pred.getParams().get(0);
+        blockY = (Block) pred.getParams().get(1);
+        //
+        if (isBlockClear(blockX) && (blockX.getWeight() <= blockY.getWeight())) {
+          if (blockX.lightBlock()) {
+            result.add(
+                Operation.makeStack(blockX, blockY, Globals.left)
+            );
+          }
+          result.add(Operation.makeStack(blockX, blockY, Globals.right));
+        }
+        break;
+      case HOLDING:
+        // HOLDING (x,A)
+        blockX = (Block) pred.getParams().get(0);
+        arm = (Arm) pred.getParams().get(1);
+        //Pick Up
+        if(getUsedColumns()<3){
+          result.add(
+              Operation.makePickUp(blockX,arm,getUsedColumns())
+          );
+        }
+        //Unstack
+        for (Block clearBlock : clearBlocks) {
+          if(blockX.getWeight()<=clearBlock.getWeight()){
+            result.add(
+                Operation.makeUnstack(blockX,clearBlock,arm)
+            );
+          }
+        }
+        break;
+      case USED_COLS_NUM:
         break;
       case CLEAR:
         break;
       case EMPTY_ARM:
-        break;
-      case HOLDING:
-        break;
-      case USED_COLS_NUM:
-        break;
-      case HEAVIER:
-        break;
-      case LIGHT_BLOCK:
         break;
     }
     return result;
