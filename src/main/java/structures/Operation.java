@@ -13,14 +13,23 @@ import structures.Predicate.TYPE;
 
 public class Operation {
 
+  public enum OPS  {
+      STACK,
+      UNSTACK,
+      PICKUP,
+      LEAVE
+  }
   private final List<Predicate> preconditions;
   private final List<Predicate> add;
   private final List<Predicate> delete;
+  private final OPS name;
 
-  public Operation(List<Predicate> preconditions, List<Predicate> add, List<Predicate> delete) {
+  public Operation(List<Predicate> preconditions, List<Predicate> add, List<Predicate> delete,
+      OPS name) {
     this.preconditions = preconditions;
     this.add = add;
     this.delete = delete;
+    this.name = name;
   }
 
   public List<Predicate> getPreconditions() {
@@ -58,7 +67,7 @@ public class Operation {
         new Predicate(TYPE.HOLDING, Lists.newArrayList(blockX, arm)),
         new Predicate(TYPE.CLEAR, Lists.newArrayList((Structure) blockY))
     );
-    return new Operation(preconditions, add, delete);
+    return new Operation(preconditions, add, delete, OPS.STACK);
   }
 
   /**
@@ -84,7 +93,7 @@ public class Operation {
         new Predicate(TYPE.ON, Lists.newArrayList((Structure) blockX, blockY)),
         new Predicate(TYPE.EMPTY_ARM, Lists.newArrayList((Structure) arm))
     );
-    return new Operation(preconditionsU, addU, deleteU);
+    return new Operation(preconditionsU, addU, deleteU, OPS.UNSTACK);
 
   }
 
@@ -116,7 +125,7 @@ public class Operation {
         new Predicate(TYPE.USED_COLS_NUM,
             Lists.newArrayList((Structure) new Column(columnsLeft)))
     );
-    return new Operation(preconditionsP, addP, deleteP);
+    return new Operation(preconditionsP, addP, deleteP, OPS.PICKUP);
 
   }
 
@@ -147,7 +156,7 @@ public class Operation {
             Lists.newArrayList((Structure) new Column(columnsLeft))),
         new Predicate(TYPE.HOLDING, Lists.newArrayList(blockX, arm))
     );
-    return new Operation(preconditionsL, addL, deleteL);
+    return new Operation(preconditionsL, addL, deleteL, OPS.LEAVE);
 
   }
 
@@ -172,5 +181,10 @@ public class Operation {
     result = (31 * result) + ((add != null) ? add.hashCode() : 0);
     result = (31 * result) + ((delete != null) ? delete.hashCode() : 0);
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return name.toString();
   }
 }

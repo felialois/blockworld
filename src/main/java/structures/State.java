@@ -7,6 +7,7 @@
 
 package structures;
 
+import com.google.common.collect.Sets;
 import controller.Globals;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +21,11 @@ public class State {
   //Predicates from the state higher up, that need to be checked with the current state
   private final List<Predicate> regressionPredicates;
 
+  // Blocks with no other block on top
   private List<Block> clearBlocks;
 
-  //State of all the checked predicates.
+  //Used columns
+  private int usedColumns;
 
   /**
    * TRUE : if the precondition is in the operation's ADD FALSE : if the precondition is in the
@@ -33,11 +36,14 @@ public class State {
   public State(Operation operation, List<Predicate> regressionPredicates) {
     this.operation = operation;
     this.regressionPredicates = regressionPredicates;
+    prepareState();
+
   }
 
   public State(List<Predicate> regressionPredicates) {
     this.operation = null;
     this.regressionPredicates = regressionPredicates;
+    prepareState();
   }
 
 
@@ -49,9 +55,8 @@ public class State {
     return regressionPredicates;
   }
 
-  //TODO IMPLEMENT
   public int getUsedColumns() {
-    return 3;
+    return usedColumns;
   }
 
   /**
@@ -82,18 +87,24 @@ public class State {
     return false;
   }
 
-  public List<Block> getClearBlocks(){
+  public List<Block> getClearBlocks() {
     return clearBlocks;
   }
 
   /**
    * Get all the clear blocks in a state
    */
-  public void listClearBlocks(){
+  private void prepareState() {
     clearBlocks = new ArrayList<>();
     for (Predicate predicate : regressionPredicates) {
-      if (predicate.getType() == TYPE.CLEAR){
+      if (predicate.getType() == TYPE.CLEAR) {
         clearBlocks.add((Block) predicate.getParams().get(0));
+      }
+      if (predicate.getType() == TYPE.USED_COLS_NUM) {
+        usedColumns = ((Column) predicate.getParams().get(0)).getColumnNumber();
+      }
+      if (predicate.getType() == TYPE.HOLDING) {
+        clearBlocks.remove((Block) predicate.getParams().get(0));
       }
     }
   }
@@ -101,26 +112,50 @@ public class State {
   /**
    * Creates a new state from a previous state and an operation
    *
-   * @param operation operation
    * @param oldState  previous state from a higher level
-   *
-   * @return
+   * @param operation operation
+   * @return new state that represents a state BEFORE the operation was applied to the old one
    */
-  public static State createState(Operation operation, State oldState) {
-    List<Predicate> regressionPredicates = new ArrayList<>();
+  public static State createState(State oldState, Operation operation){
+    List<Predicate> predicateList = new ArrayList<>();
 
-    for (Predicate pred : oldState.getRegressionPredicates()) {
-      if (operation.getAdd().contains(pred)) {
-
-      } else if (operation.getDelete().contains(pred)) {
+    for (Predicate predicate : oldState.getRegressionPredicates()) {
+      if(operation.getAdd().contains(predicate)){
+        //if the add contains the TRUE then we don't need to add it to the next predicate list
+        continue;
+      } else if(operation.getDelete().contains(predicate) && (predicate.getType() != TYPE
+          .USED_COLS_NUM)){
+        // if the operation's delete contains a predicate then the state is FALSE and can't continue
         return null;
       } else {
-        regressionPredicates.add(pred);
+        // if it's not true o
+        predicateList.add(predicate);
       }
     }
 
-    regressionPredicates.addAll(operation.getPreconditions());
-    return new State(operation, regressionPredicates);
+    predicateList.addAll(operation.getPreconditions());
+
+    return new State(operation,predicateList);
+  }
+
+  /**
+   * Creates a list of states from all the possible operations that could come before a state
+   * @param oldState old state
+   * @return list of states
+   */
+  public static List<State> createNextLevelStates(State oldState) {
+    List<State> states = new ArrayList<>();
+    List<Operation> operations;
+
+    for (Predicate pred : oldState.getRegressionPredicates()) {
+      operations = getOperations(pred, oldState);
+      for (Operation operation : operations) {
+        states.add(createState(oldState, operation));
+      }
+
+    }
+
+    return states;
   }
 
   /**
@@ -131,7 +166,7 @@ public class State {
    *
    * @return
    */
-  public List<Operation> getOperations(Predicate pred, State state) {
+  public static List<Operation> getOperations(Predicate pred, State state) {
     List<Operation> result = new ArrayList<>();
     Block blockY;
     Block blockX;
@@ -155,7 +190,7 @@ public class State {
         blockX = (Block) pred.getParams().get(0);
         blockY = (Block) pred.getParams().get(1);
         //
-        if (isBlockClear(blockX) && (blockX.getWeight() <= blockY.getWeight())) {
+        if (state.isBlockClear(blockX) && (blockX.getWeight() <= blockY.getWeight())) {
           if (blockX.lightBlock()) {
             result.add(
                 Operation.makeStack(blockX, blockY, Globals.left)
@@ -169,21 +204,19 @@ public class State {
         blockX = (Block) pred.getParams().get(0);
         arm = (Arm) pred.getParams().get(1);
         //Pick Up
-        if(getUsedColumns()<3){
+        if (state.getUsedColumns() < 3) {
           result.add(
-              Operation.makePickUp(blockX,arm,getUsedColumns())
+              Operation.makePickUp(blockX, arm, state.getUsedColumns())
           );
         }
         //Unstack
-        for (Block clearBlock : clearBlocks) {
-          if(blockX.getWeight()<=clearBlock.getWeight()){
+        for (Block clearBlock : state.getClearBlocks()) {
+          if (blockX.getWeight() <= clearBlock.getWeight()) {
             result.add(
-                Operation.makeUnstack(blockX,clearBlock,arm)
+                Operation.makeUnstack(blockX, clearBlock, arm)
             );
           }
         }
-        break;
-      case USED_COLS_NUM:
         break;
       case CLEAR:
         break;
@@ -203,7 +236,8 @@ public class State {
     if ((operation != null) ? !operation.equals(state.operation) : (state.operation != null)) {
       return false;
     }
-    return (regressionPredicates != null) ? regressionPredicates.equals(state.regressionPredicates)
+    return (regressionPredicates != null) ?
+        Sets.newHashSet(regressionPredicates).equals(Sets.newHashSet(state.regressionPredicates))
         : (state.regressionPredicates == null);
   }
 

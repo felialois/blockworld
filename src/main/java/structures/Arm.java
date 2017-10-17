@@ -24,6 +24,23 @@ public class Arm extends Structure{
     LEFT, RIGHT
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) { return true; }
+    if (o == null || getClass() != o.getClass()) { return false; }
 
+    Arm arm = (Arm) o;
 
+    return armDirection == arm.armDirection;
+  }
+
+  @Override
+  public int hashCode() {
+    return armDirection != null ? armDirection.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    return "Arm : " + armDirection;
+  }
 }

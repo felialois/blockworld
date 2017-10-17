@@ -7,6 +7,8 @@
 
 package structures;
 
+import com.google.common.collect.Sets;
+import java.util.HashSet;
 import java.util.List;
 
 public class Predicate {
@@ -48,7 +50,7 @@ public class Predicate {
     Predicate predicate = (Predicate) o;
 
     if (type != predicate.type) { return false; }
-    return params != null ? params.equals(predicate.params) : predicate.params == null;
+    return params != null ? Sets.newHashSet(params).equals(Sets.newHashSet(predicate.params)) : predicate.params == null;
   }
 
   @Override
@@ -56,5 +58,13 @@ public class Predicate {
     int result = type != null ? type.hashCode() : 0;
     result = 31 * result + (params != null ? params.hashCode() : 0);
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "Predicate{" +
+        "type=" + type +
+        ", params=" + params +
+        '}';
   }
 }

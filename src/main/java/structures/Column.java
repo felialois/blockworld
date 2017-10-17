@@ -16,6 +16,10 @@ public class Column extends Structure{
     this.columnNumber = columnNumber;
   }
 
+  public int getColumnNumber() {
+    return columnNumber;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) { return true; }
@@ -29,5 +33,10 @@ public class Column extends Structure{
   @Override
   public int hashCode() {
     return columnNumber;
+  }
+
+  @Override
+  public String toString() {
+    return "Used Columns : "+ columnNumber;
   }
 }
