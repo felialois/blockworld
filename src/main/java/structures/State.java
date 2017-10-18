@@ -11,6 +11,7 @@ import com.google.common.collect.Sets;
 import controller.Globals;
 import java.util.ArrayList;
 import java.util.List;
+import structures.Arm.ARM_DIRECTION;
 import structures.Predicate.TYPE;
 
 public class State {
@@ -26,6 +27,20 @@ public class State {
 
   //Used columns
   private int usedColumns;
+
+  //Saves if the left arm is empty
+  private boolean leftArmEmpty = true;
+
+  //Saves if the right arm is empty
+  private boolean rightArmEmpty = true;
+
+  public boolean isLeftArmEmpty() {
+    return leftArmEmpty;
+  }
+
+  public boolean isRightArmEmpty() {
+    return rightArmEmpty;
+  }
 
   /**
    * TRUE : if the precondition is in the operation's ADD FALSE : if the precondition is in the
@@ -87,6 +102,23 @@ public class State {
     return false;
   }
 
+  /**
+   * Checks if an arm is empty
+   *
+   * @param block block to be checked
+   *
+   * @return if the block is on the table
+   */
+  public boolean isArmEmpty(Block block) {
+    for (Predicate predicate : regressionPredicates) {
+      if ((predicate.getType() == TYPE.ON_TABLE)
+          && predicate.getParams().get(0).equals(block)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public List<Block> getClearBlocks() {
     return clearBlocks;
   }
@@ -105,6 +137,11 @@ public class State {
       }
       if (predicate.getType() == TYPE.HOLDING) {
         clearBlocks.remove((Block) predicate.getParams().get(0));
+        if (((Arm) predicate.getParams().get(1)).getArmType() == ARM_DIRECTION.RIGHT) {
+          rightArmEmpty = false;
+        } else if (((Arm) predicate.getParams().get(1)).getArmType() == ARM_DIRECTION.LEFT) {
+          leftArmEmpty = false;
+        }
       }
     }
   }
@@ -114,17 +151,18 @@ public class State {
    *
    * @param oldState  previous state from a higher level
    * @param operation operation
+   *
    * @return new state that represents a state BEFORE the operation was applied to the old one
    */
-  public static State createState(State oldState, Operation operation){
+  public static State createState(State oldState, Operation operation) {
     List<Predicate> predicateList = new ArrayList<>();
 
     for (Predicate predicate : oldState.getRegressionPredicates()) {
-      if(operation.getAdd().contains(predicate)){
+      if (operation.getAdd().contains(predicate)) {
         //if the add contains the TRUE then we don't need to add it to the next predicate list
         continue;
-      } else if(operation.getDelete().contains(predicate) && (predicate.getType() != TYPE
-          .USED_COLS_NUM)){
+      } else if (operation.getDelete().contains(predicate) && (predicate.getType() != TYPE
+          .USED_COLS_NUM)) {
         // if the operation's delete contains a predicate then the state is FALSE and can't continue
         return null;
       } else {
@@ -135,12 +173,14 @@ public class State {
 
     predicateList.addAll(operation.getPreconditions());
 
-    return new State(operation,predicateList);
+    return new State(operation, predicateList);
   }
 
   /**
    * Creates a list of states from all the possible operations that could come before a state
+   *
    * @param oldState old state
+   *
    * @return list of states
    */
   public static List<State> createNextLevelStates(State oldState) {
@@ -176,14 +216,19 @@ public class State {
       case ON_TABLE:
         // Take the block for the leave operation
         Block blockToLeave = (Block) pred.getParams().get(0);
-        // If the block is light enough for the left arm then add the left arm operation
-        if (blockToLeave.lightBlock()) {
-          result.add(
-              Operation.makeLeave(blockToLeave, Globals.left, state.getUsedColumns()));
+        // If the block is not clear don't create the leave operation
+        if (state.isBlockClear(blockToLeave)) {
+          // If the block is light enough for the left arm then add the left arm operation
+          // also check if the arm is empty
+          if (blockToLeave.lightBlock() && state.leftArmEmpty) {
+            result.add(
+                Operation.makeLeave(blockToLeave, Globals.left, state.getUsedColumns()));
+          } else if (state.rightArmEmpty) {
+            // Add the right arm operation
+            result.add(
+                Operation.makeLeave(blockToLeave, Globals.right, state.getUsedColumns()));
+          }
         }
-        // Add the right arm operation
-        result.add(
-            Operation.makeLeave(blockToLeave, Globals.right, state.getUsedColumns()));
         break;
       case ON:
         // ON (X, Y)
@@ -191,12 +236,14 @@ public class State {
         blockY = (Block) pred.getParams().get(1);
         //
         if (state.isBlockClear(blockX) && (blockX.getWeight() <= blockY.getWeight())) {
-          if (blockX.lightBlock()) {
+          if (blockX.lightBlock() && state.leftArmEmpty) {
             result.add(
                 Operation.makeStack(blockX, blockY, Globals.left)
             );
           }
-          result.add(Operation.makeStack(blockX, blockY, Globals.right));
+          if (state.rightArmEmpty) {
+            result.add(Operation.makeStack(blockX, blockY, Globals.right));
+          }
         }
         break;
       case HOLDING:

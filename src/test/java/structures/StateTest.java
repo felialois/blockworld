@@ -328,6 +328,8 @@ public class StateTest extends TestCase {
 
     List<State> nextLevelStates = State.createNextLevelStates(newState);
     System.out.println(nextLevelStates);
+    List<State> nextLevelStates2 = State.createNextLevelStates(nextLevelStates.get(1));
+    System.out.println(nextLevelStates2);
 
   }
 
