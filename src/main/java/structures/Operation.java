@@ -56,8 +56,7 @@ public class Operation {
   public static Operation makeStack(Block blockX, Block blockY, Arm arm) {
     List<Predicate> preconditions = Lists.newArrayList(
         new Predicate(TYPE.HOLDING, Lists.newArrayList(blockX, arm)),
-        new Predicate(TYPE.CLEAR, Lists.newArrayList((Structure) blockY)),
-        new Predicate(TYPE.HEAVIER, Lists.newArrayList((Structure) blockY, blockX))
+        new Predicate(TYPE.CLEAR, Lists.newArrayList((Structure) blockY))
     );
     List<Predicate> add = Lists.newArrayList(
         new Predicate(TYPE.ON, Lists.newArrayList((Structure) blockX, blockY)),
@@ -134,7 +133,7 @@ public class Operation {
    *
    * @param blockX      block to be left
    * @param arm         arm to be used
-   * @param columnsLeft number of columns available
+   * @param columnsLeft number of columns being used
    *
    * @return
    */
@@ -185,6 +184,35 @@ public class Operation {
 
   @Override
   public String toString() {
-    return name.toString();
+    String res = "";
+    Block block1;
+    Block block2;
+    Arm arm;
+
+    switch (name){
+      case STACK:
+        block1 = (Block) add.get(0).getParams().get(0);
+        block2 = (Block) add.get(0).getParams().get(1);
+        arm = (Arm) add.get(1).getParams().get(0);
+        res = name.toString()+ '(' +block1.getName()+ ',' +block2.getName()+ ','+arm.getArmType()+')';
+        break;
+      case UNSTACK:
+        block1 = (Block) delete.get(0).getParams().get(0);
+        block2 = (Block) delete.get(0).getParams().get(1);
+        arm = (Arm) delete.get(1).getParams().get(0);
+        res = name.toString()+ '(' +block1.getName()+ ',' +block2.getName()+ ','+arm.getArmType()+')';
+        break;
+      case PICKUP:
+        block1 = (Block) add.get(0).getParams().get(0);
+        arm = (Arm) add.get(0).getParams().get(1);
+        res = name.toString()+ '(' +block1.getName()+ ',' +arm.getArmType()+')';
+        break;
+      case LEAVE:
+        block1 = (Block) add.get(0).getParams().get(0);
+        arm = (Arm) add.get(1).getParams().get(0);
+        res = name.toString()+ '(' +block1.getName()+ ',' +arm.getArmType()+')';
+        break;
+    }
+    return res;
   }
 }

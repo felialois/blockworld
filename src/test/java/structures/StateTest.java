@@ -119,7 +119,7 @@ public class StateTest extends TestCase {
   public void testCreateState() throws Exception {
 
     Operation operationStackCBR = Operation.makeStack(C, B, Globals.right);
-    State actual = State.createState(testState, operationStackCBR);
+    State actual = State.createState(testState, operationStackCBR, new ArrayList<Operation>());
 
     List<Predicate> expectedStatePreds = new ArrayList<>();
     expectedStatePreds.add(
@@ -179,7 +179,7 @@ public class StateTest extends TestCase {
             Lists.<Structure>newArrayList(B, C)
         ));
 
-    State expected = new State(operationStackCBR,expectedStatePreds);
+    State expected = new State(operationStackCBR, expectedStatePreds, new ArrayList<Operation>());
     assertEquals("The state should be the correct one",expected,actual);
 
 
@@ -247,13 +247,8 @@ public class StateTest extends TestCase {
             TYPE.USED_COLS_NUM,
             Lists.newArrayList((Structure) new Column(2))
         ));
-    predicates.add(
-        new Predicate(
-            TYPE.HEAVIER,
-            Lists.<Structure>newArrayList(B, C)
-        ));
 
-    State newState = new State(operationStackCBR,predicates);
+    State newState = new State(operationStackCBR, predicates, new ArrayList<Operation>());
 
     Predicate holdingC = new Predicate(
         TYPE.HOLDING,
@@ -318,13 +313,8 @@ public class StateTest extends TestCase {
             TYPE.USED_COLS_NUM,
             Lists.newArrayList((Structure) new Column(2))
         ));
-    predicates.add(
-        new Predicate(
-            TYPE.HEAVIER,
-            Lists.<Structure>newArrayList(B, C)
-        ));
 
-    State newState = new State(operationStackCBR,predicates);
+    State newState = new State(operationStackCBR, predicates, new ArrayList<Operation>());
 
     List<State> nextLevelStates = State.createNextLevelStates(newState);
     System.out.println(nextLevelStates);

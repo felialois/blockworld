@@ -7,9 +7,12 @@
 
 package controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import structures.Arm;
 import structures.Arm.ARM_DIRECTION;
 import structures.Block;
+import structures.Cancelation;
 import structures.Column;
 
 public class Globals {
@@ -20,6 +23,18 @@ public class Globals {
 
   private static final Block blockX = new Block("x", 1);
   private static final Block blockY = new Block("y", 1);
+
+  private static int columnNumber = 3;
+
+  public static int getColumnNumber() {
+    return columnNumber;
+  }
+
+  public static void setColumnNumber(int columnNumber) {
+    Globals.columnNumber = columnNumber;
+  }
+
+  public static final List<Cancelation> cancelledStates = new ArrayList<>();
 
 
 }
