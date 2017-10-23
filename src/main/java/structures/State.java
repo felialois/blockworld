@@ -139,16 +139,18 @@ public class State {
    * Get all the clear blocks in a state
    */
   private void prepareState() {
-    clearBlocks = new ArrayList<>();
+    Set<Block> clearBlocksTemp = new HashSet<>();
+    Set<Block> clearBlocksInArm = new HashSet<>();
+
     for (Predicate predicate : regressionPredicates) {
       if (predicate.getType() == TYPE.CLEAR) {
-        clearBlocks.add((Block) predicate.getParams().get(0));
+        clearBlocksTemp.add((Block) predicate.getParams().get(0));
       }
       if (predicate.getType() == TYPE.USED_COLS_NUM) {
         usedColumns = ((Column) predicate.getParams().get(0)).getColumnNumber();
       }
       if (predicate.getType() == TYPE.HOLDING) {
-        clearBlocks.remove((Block) predicate.getParams().get(0));
+        clearBlocksInArm.add((Block) predicate.getParams().get(0));
         if (((Arm) predicate.getParams().get(1)).getArmType() == ARM_DIRECTION.RIGHT) {
           rightArmEmpty = false;
         } else if (((Arm) predicate.getParams().get(1)).getArmType() == ARM_DIRECTION.LEFT) {
@@ -156,6 +158,8 @@ public class State {
         }
       }
     }
+    clearBlocksTemp.removeAll(clearBlocksInArm);
+    clearBlocks = Lists.newArrayList(clearBlocksTemp);
   }
 
   /**
