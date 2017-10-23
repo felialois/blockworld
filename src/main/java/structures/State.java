@@ -170,6 +170,19 @@ public class State {
     Set<Predicate> predicateList = new HashSet<>();
 
     for (Predicate predicate : oldState.getRegressionPredicates()) {
+      if (predicate.getType() == TYPE.USED_COLS_NUM) {
+        predicateList.add(
+            new Predicate(
+                TYPE.USED_COLS_NUM,
+                Lists.newArrayList(
+                    (Structure) new Column(
+                        ((Column) predicate.getParams().get(0)).getColumnNumber()
+                            + operation.getChangesColumns())
+                )
+            )
+        );
+        continue;
+      }
       if (operation.getAdd().contains(predicate)) {
         //if the add contains the TRUE then we don't need to add it to the next predicate list
         continue;

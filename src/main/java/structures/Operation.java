@@ -24,12 +24,16 @@ public class Operation {
   private final List<Predicate> delete;
   private final OPS name;
 
+  //Confirms if the operation affects the column number
+  private final int changesColumns;
+
   public Operation(List<Predicate> preconditions, List<Predicate> add, List<Predicate> delete,
-      OPS name) {
+      OPS name, int changesColumns) {
     this.preconditions = preconditions;
     this.add = add;
     this.delete = delete;
     this.name = name;
+    this.changesColumns = changesColumns;
   }
 
   public List<Predicate> getPreconditions() {
@@ -42,6 +46,14 @@ public class Operation {
 
   public List<Predicate> getDelete() {
     return delete;
+  }
+
+  public OPS getName() {
+    return name;
+  }
+
+  public int getChangesColumns() {
+    return changesColumns;
   }
 
   /**
@@ -66,7 +78,7 @@ public class Operation {
         new Predicate(TYPE.HOLDING, Lists.newArrayList(blockX, arm)),
         new Predicate(TYPE.CLEAR, Lists.newArrayList((Structure) blockY))
     );
-    return new Operation(preconditions, add, delete, OPS.STACK);
+    return new Operation(preconditions, add, delete, OPS.STACK, 0);
   }
 
   /**
@@ -92,7 +104,7 @@ public class Operation {
         new Predicate(TYPE.ON, Lists.newArrayList((Structure) blockX, blockY)),
         new Predicate(TYPE.EMPTY_ARM, Lists.newArrayList((Structure) arm))
     );
-    return new Operation(preconditionsU, addU, deleteU, OPS.UNSTACK);
+    return new Operation(preconditionsU, addU, deleteU, OPS.UNSTACK, 0);
 
   }
 
@@ -124,7 +136,7 @@ public class Operation {
         new Predicate(TYPE.USED_COLS_NUM,
             Lists.newArrayList((Structure) new Column(columnsLeft)))
     );
-    return new Operation(preconditionsP, addP, deleteP, OPS.PICKUP);
+    return new Operation(preconditionsP, addP, deleteP, OPS.PICKUP, 1);
 
   }
 
@@ -155,7 +167,7 @@ public class Operation {
             Lists.newArrayList((Structure) new Column(columnsLeft))),
         new Predicate(TYPE.HOLDING, Lists.newArrayList(blockX, arm))
     );
-    return new Operation(preconditionsL, addL, deleteL, OPS.LEAVE);
+    return new Operation(preconditionsL, addL, deleteL, OPS.LEAVE, -1);
 
   }
 
