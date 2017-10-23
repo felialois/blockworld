@@ -109,9 +109,9 @@ public class Operation {
     List<Predicate> preconditionsP = Lists.newArrayList(
         new Predicate(TYPE.CLEAR, Lists.newArrayList((Structure) blockX)),
         new Predicate(TYPE.EMPTY_ARM, Lists.newArrayList((Structure) arm)),
-        new Predicate(TYPE.ON_TABLE, Lists.newArrayList((Structure) blockX)),
-        new Predicate(TYPE.USED_COLS_NUM,
-            Lists.newArrayList((Structure) new Column(columnsLeft)))
+        new Predicate(TYPE.ON_TABLE, Lists.newArrayList((Structure) blockX))
+//        new Predicate(TYPE.USED_COLS_NUM,
+//            Lists.newArrayList((Structure) new Column(columnsLeft)))
     );
     List<Predicate> addP = Lists.newArrayList(
         new Predicate(TYPE.HOLDING, Lists.newArrayList(blockX, arm)),
@@ -139,8 +139,8 @@ public class Operation {
    */
   public static Operation makeLeave(Block blockX, Arm arm, int columnsLeft) {
     List<Predicate> preconditionsL = Lists.newArrayList(
-        new Predicate(TYPE.USED_COLS_NUM,
-            Lists.newArrayList((Structure) new Column(columnsLeft))),
+//        new Predicate(TYPE.USED_COLS_NUM,
+//            Lists.newArrayList((Structure) new Column(columnsLeft))),
         new Predicate(TYPE.HOLDING,
             Lists.newArrayList(blockX, arm))
     );

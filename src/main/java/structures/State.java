@@ -170,10 +170,6 @@ public class State {
     Set<Predicate> predicateList = new HashSet<>();
 
     for (Predicate predicate : oldState.getRegressionPredicates()) {
-//      if (predicate.getType() == TYPE.USED_COLS_NUM) {
-//        //Don't add the used column predicate, it will be added from the operation
-//        continue;
-//      }
       if (operation.getAdd().contains(predicate)) {
         //if the add contains the TRUE then we don't need to add it to the next predicate list
         continue;
@@ -188,13 +184,6 @@ public class State {
     }
 
     predicateList.addAll(operation.getPreconditions());
-
-//    for (Predicate opAdd : operation.getAdd()) {
-//      //Get the correct number of columns after the operation
-//      if (opAdd.getType() == TYPE.USED_COLS_NUM) {
-//        predicateList.add(opAdd);
-//      }
-//    }
 
     List<Operation> newPlan = new ArrayList<>(plan);
     newPlan.add(operation);
