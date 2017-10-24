@@ -34,18 +34,23 @@ public class Controller {
   public void run(){
     Queue<State> queue = new LinkedList<>();
     queue.add(finalState);
-    while(!queue.peek().equals(initialState)){
-      State currentState = queue.remove();
-      visitedStates.add(currentState);
-      List<State> nextLevelStates
-          = State.createNextLevelStates(currentState);
-      for (State nextLevelState : nextLevelStates) {
-        if(!visitedStates.contains(nextLevelState) && (nextLevelState != null)){
-          queue.add(nextLevelState);
+    try {
+      while (!queue.peek().equals(initialState)) {
+        State currentState = queue.remove();
+        visitedStates.add(currentState);
+        List<State> nextLevelStates
+            = State.createNextLevelStates(currentState);
+        for (State nextLevelState : nextLevelStates) {
+          if (!visitedStates.contains(nextLevelState) && (nextLevelState != null)) {
+            queue.add(nextLevelState);
 
+          }
         }
-      }
 
+      }
+    }catch (Exception e){
+      System.out.println("Error");
+      throw e;
     }
 
     State iState = queue.remove();

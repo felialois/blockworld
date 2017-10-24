@@ -12,7 +12,7 @@ import java.util.List;
 import structures.Arm;
 import structures.Arm.ARM_DIRECTION;
 import structures.Block;
-import structures.Cancelation;
+import structures.Cancellation;
 import structures.Column;
 
 public class Globals {
@@ -34,7 +34,7 @@ public class Globals {
     Globals.columnNumber = columnNumber;
   }
 
-  public static final List<Cancelation> cancelledStates = new ArrayList<>();
+  public static final List<Cancellation> cancelledStates = new ArrayList<>();
 
 
 }
