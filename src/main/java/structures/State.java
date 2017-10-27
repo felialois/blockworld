@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import structures.Arm.ARM_DIRECTION;
+import structures.Cancellation.REASON;
 import structures.Predicate.TYPE;
 
 public class State {
@@ -193,6 +194,16 @@ public class State {
       } else if (operation.getDelete().contains(predicate) && (predicate.getType() != TYPE
           .USED_COLS_NUM)) {
         // if the operation's delete contains a predicate then the state is FALSE and can't continue
+        //Add cancelled state
+        List<Predicate> cancelledP = Lists.newArrayList(predicateList);
+        cancelledP.addAll(operation.getPreconditions());
+        Globals.addCancelledState(
+            new Cancellation(
+                "State cancelled because the operation's delete contained a predicate in the state",
+                REASON.CONFLICTING_PREDICATES,
+                new State(operation, cancelledP, oldState.plan)
+            )
+        );
         return null;
       } else {
         // if it's not true o
@@ -259,7 +270,21 @@ public class State {
             // Add the right arm operation
             result.add(
                 Operation.makeLeave(blockToLeave, Globals.right, state.getUsedColumns()));
+          } else {
+            Globals.addCancelledState(
+                new Cancellation("Incompatible predicates",
+                    blockToLeave.lightBlock() ?
+                        REASON.INCOMPATIBLE_PREDICATE_BLOCK_TOO_HEAVY_FOR_ARM :
+                        REASON.INCOMPATIBLE_PREDICATE_ARM_IN_USE,
+                    null)
+            );
           }
+        } else {
+          Globals.addCancelledState(
+              new Cancellation("Incompatible predicates",
+                  REASON.INCOMPATIBLE_PREDICATE_BLOCK_NOT_CLEAR,
+                  null)
+          );
         }
         break;
       case ON:
@@ -272,10 +297,32 @@ public class State {
             result.add(
                 Operation.makeStack(blockX, blockY, Globals.left)
             );
+          } else {
+            Globals.addCancelledState(
+                new Cancellation("Incompatible predicates",
+                    blockX.lightBlock() ?
+                        REASON.INCOMPATIBLE_PREDICATE_ARM_IN_USE :
+                        REASON.INCOMPATIBLE_PREDICATE_BLOCK_TOO_HEAVY_FOR_ARM,
+                    null)
+            );
           }
           if (state.rightArmEmpty) {
             result.add(Operation.makeStack(blockX, blockY, Globals.right));
+          } else {
+            Globals.addCancelledState(
+                new Cancellation("Incompatible predicates",
+                    REASON.INCOMPATIBLE_PREDICATE_ARM_IN_USE,
+                    null)
+            );
           }
+        } else {
+          Globals.addCancelledState(
+              new Cancellation("Incompatible predicates",
+                  state.isBlockClear(blockX) ?
+                      REASON.INCOMPATIBLE_PREDICATE_BLOCK_TOO_HEAVY_FOR_STACKING :
+                      REASON.INCOMPATIBLE_PREDICATE_BLOCK_NOT_CLEAR,
+                  null)
+          );
         }
         break;
       case HOLDING:
@@ -287,6 +334,12 @@ public class State {
           result.add(
               Operation.makePickUp(blockX, arm, state.getUsedColumns())
           );
+        } else {
+          Globals.addCancelledState(
+              new Cancellation("Incompatible predicates",
+                  REASON.INCOMPATIBLE_PREDICATE_ALL_COLUMNS_IN_USE,
+                  null)
+          );
         }
         //Unstack
         for (Block clearBlock : state.getClearBlocks()) {
@@ -294,15 +347,23 @@ public class State {
             result.add(
                 Operation.makeUnstack(blockX, clearBlock, arm)
             );
+          } else {
+            Globals.addCancelledState(
+                new Cancellation("Incompatible predicates",
+                    REASON.INCOMPATIBLE_PREDICATE_BLOCK_TOO_HEAVY_FOR_STACKING,
+                    null)
+            );
           }
         }
         break;
-      case CLEAR:
-        break;
-      case EMPTY_ARM:
-        break;
     }
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "State : " + operation +
+        " predicates= " + regressionPredicates;
   }
 
   @Override

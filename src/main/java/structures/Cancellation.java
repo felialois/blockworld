@@ -11,20 +11,28 @@ public class Cancellation {
 
   private final String description;
   private final REASON reason;
+  private final State state;
 
   public enum REASON {
     CONFLICTING_PREDICATES,
-    BREAKING_RULE
+    INCOMPATIBLE_PREDICATE_BLOCK_NOT_CLEAR,
+    INCOMPATIBLE_PREDICATE_BLOCK_TOO_HEAVY_FOR_ARM,
+    INCOMPATIBLE_PREDICATE_ARM_IN_USE,
+    INCOMPATIBLE_PREDICATE_BLOCK_TOO_HEAVY_FOR_STACKING,
+    INCOMPATIBLE_PREDICATE_ALL_COLUMNS_IN_USE,
+    PREVIOUSLY_VISITED_STATE,
   }
 
-  public Cancellation(String description, REASON reason) {
+  public Cancellation(String description, REASON reason, State state) {
     this.description = description;
     this.reason = reason;
+    this.state = state;
   }
 
   @Override
   public String toString() {
-    return reason + " : " + description;
+    return "\n ----- \n"+reason + " : " + description + " -- "
+        + (state == null ? " State canceled before creation" : state.toString())+ '\n';
   }
 
   @Override
@@ -34,7 +42,8 @@ public class Cancellation {
 
     Cancellation that = (Cancellation) o;
 
-    if ((description != null) ? !description.equals(that.description) : (that.description != null)) {
+    if ((description != null) ? !description.equals(that.description) : (that.description !=
+        null)) {
       return false;
     }
     return reason == that.reason;

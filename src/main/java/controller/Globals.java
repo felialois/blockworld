@@ -34,7 +34,15 @@ public class Globals {
     Globals.columnNumber = columnNumber;
   }
 
-  public static final List<Cancellation> cancelledStates = new ArrayList<>();
+  private static final List<Cancellation> cancelledStates = new ArrayList<>();
+
+  public static List<Cancellation> getCancelledStates() {
+    return cancelledStates;
+  }
+
+  public static void addCancelledState(Cancellation cancellation){
+    cancelledStates.add(cancellation);
+  }
 
 
 }
