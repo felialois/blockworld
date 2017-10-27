@@ -518,4 +518,118 @@ public class MainTest extends TestCase {
   }
 
 
+  public void testMain5(){
+    List<Predicate> statePreds = new ArrayList<>();
+    statePreds.add(
+        new Predicate(
+            TYPE.ON_TABLE,
+            Lists.<Structure>newArrayList(E)
+        ));
+    statePreds.add(
+        new Predicate(
+            TYPE.ON_TABLE,
+            Lists.<Structure>newArrayList(C)
+        ));
+    statePreds.add(
+        new Predicate(
+            TYPE.ON,
+            Lists.<Structure>newArrayList(D, E)
+        ));
+    statePreds.add(
+        new Predicate(
+            TYPE.ON,
+            Lists.<Structure>newArrayList(A, C)
+        ));
+    statePreds.add(
+        new Predicate(
+            TYPE.ON,
+            Lists.<Structure>newArrayList(B, D)
+        ));
+    statePreds.add(
+        new Predicate(
+            TYPE.CLEAR,
+            Lists.<Structure>newArrayList(A)
+        ));
+    statePreds.add(
+        new Predicate(
+            TYPE.CLEAR,
+            Lists.<Structure>newArrayList(B)
+        ));
+    statePreds.add(
+        new Predicate(
+            TYPE.EMPTY_ARM,
+            Lists.newArrayList((Structure) Globals.left)
+        ));
+    statePreds.add(
+        new Predicate(
+            TYPE.EMPTY_ARM,
+            Lists.newArrayList((Structure) Globals.right)
+        ));
+    statePreds.add(
+        new Predicate(
+            TYPE.USED_COLS_NUM,
+            Lists.newArrayList((Structure) new Column(2))
+        ));
+
+    State testInitialState = new State(statePreds);
+
+    List<Predicate> initPreds = new ArrayList<>();
+    initPreds.add(
+        new Predicate(
+            TYPE.ON_TABLE,
+            Lists.<Structure>newArrayList(E)
+        ));
+    initPreds.add(
+        new Predicate(
+            TYPE.ON,
+            Lists.<Structure>newArrayList(D, E)
+        ));
+    initPreds.add(
+        new Predicate(
+            TYPE.ON,
+            Lists.<Structure>newArrayList(C, D)
+        ));
+    initPreds.add(
+        new Predicate(
+            TYPE.ON,
+            Lists.<Structure>newArrayList(B, C)
+        ));
+    initPreds.add(
+        new Predicate(
+            TYPE.ON,
+            Lists.<Structure>newArrayList(A, B)
+        ));
+    initPreds.add(
+        new Predicate(
+            TYPE.CLEAR,
+            Lists.<Structure>newArrayList(A)
+        ));
+    initPreds.add(
+        new Predicate(
+            TYPE.EMPTY_ARM,
+            Lists.newArrayList((Structure) Globals.left)
+        ));
+    initPreds.add(
+        new Predicate(
+            TYPE.EMPTY_ARM,
+            Lists.newArrayList((Structure) Globals.right)
+        ));
+    initPreds.add(
+        new Predicate(
+            TYPE.USED_COLS_NUM,
+            Lists.newArrayList((Structure) new Column(1))
+        ));
+
+    State testFinalState = new State(initPreds);
+
+    Controller controller = new Controller(
+        3,
+        Lists.newArrayList(A,B,C,D,E),
+        testInitialState,
+        testFinalState);
+
+    controller.run();
+  }
+
+
 }
