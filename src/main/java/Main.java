@@ -5,34 +5,21 @@
  * Written by felipe
  */
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
-import structures.Block;
-import structures.State;
+import controller.Controller;
 
 public class Main {
 
-  public static void main(String[] args){
+  public static void main(String[] args) {
 
-    int maxColumns = 3;
-    List<Block> blocks = new ArrayList<>();
-    State initialState = null;
-    State finalState = null;
-
-    Queue<State> queue = new LinkedList<>();
-    queue.add(finalState);
-    while(!queue.peek().equals(initialState)){
-      State currentState = queue.remove();
-      List<State> nextLevelStates
-          = State.createNextLevelStates(currentState);
-      queue.addAll(nextLevelStates);
-
+    Controller controller = null;
+    try {
+      controller = new Controller(args[0],Integer.parseInt(args[1]));
+    } catch (Exception e) {
+      System.out.println("Error reading file");
+      e.printStackTrace();
     }
 
-
+    controller.run();
   }
 
 }

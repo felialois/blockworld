@@ -140,6 +140,13 @@ public class ControllerTest extends TestCase {
 
   }
 
+  public void testReadFile() throws Exception{
+    Controller controller =
+        new Controller("/Users/felipe/Downloads/PlannerFiles 2/testing2.txt",50);
+
+    controller.run();
+  }
+
   public void testRun() throws Exception {
 
     Controller controller = new Controller(
