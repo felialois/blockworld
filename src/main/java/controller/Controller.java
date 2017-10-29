@@ -90,12 +90,11 @@ public class Controller {
     System.out.println("Operators : " + plan.size());
     System.out.println("States Generated : " + statesGenerated);
     System.out.println("Plan : " + plan);
+    System.out.println("Total Cancelled States : " + Globals.getCancelledStates().size());
     System.out.println("Cancelled States (Top " +cancelledToPrint+") : "+
         Globals.getCancelledStates().subList(0, cancelledToPrint));
     System.out.println("Runtime : " + ((System.currentTimeMillis() - initialTime) / 1000.0) + " " +
         "seconds");
-    System.out.println("Memory Used : " +
-        ((Runtime.getRuntime().totalMemory()) / 1048576) +"mb");
 
   }
 
